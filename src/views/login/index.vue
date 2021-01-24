@@ -58,7 +58,7 @@ import { validUsername } from '@/utils/validate'
 export default {
   name: 'Login',
   data() {
-    const validateUsername = (rule, value, callback) => {
+    const validateUsername = (rule, value, callback) => {//自定义校验规则
       if (!validUsername(value)) {
         callback(new Error('Please enter the correct user name'))
       } else {
@@ -78,7 +78,7 @@ export default {
         password: '111111'
       },
       loginRules: {
-        username: [{ required: true, trigger: 'blur', validator: validateUsername }],
+        username: [{ required: true, trigger: 'blur', validator: validateUsername }],//这里表示必填表单，失去焦点时触发，检验器为：validateUsername
         password: [{ required: true, trigger: 'blur', validator: validatePassword }]
       },
       loading: false,
@@ -89,9 +89,9 @@ export default {
   watch: {
     $route: {
       handler: function(route) {
-        this.redirect = route.query && route.query.redirect
+        this.redirect = route.query && route.query.redirect //登录成功后，根据记录的数据，跳转到指定带参数的路由
       },
-      immediate: true
+      immediate: true//immediate: true 说明加载登录页面时就会执行handler函数，handler的第一个参数表示to
     }
   },
   methods: {
