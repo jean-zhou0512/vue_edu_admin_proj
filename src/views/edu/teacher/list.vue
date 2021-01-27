@@ -1,5 +1,41 @@
 <template>
     <div class="api-container">
+      <el-form :inline="true" :model="teacherQuery" ref="teacherQuery" class="demo-form-inline">
+        <el-form-item label="讲师名" prop="name">
+          <el-input v-model="teacherQuery.name" placeholder="审批人"></el-input>
+        </el-form-item>
+        <el-form-item label="讲师头衔" prop="level">
+          <el-select v-model="teacherQuery.level" placeholder="讲师头衔">
+            <el-option v-for="teacherTitle in teacherTitleList" :label="teacherTitle.dictValueName" :value="teacherTitle.dictValue">
+            </el-option>
+            <!--<el-option label="高级讲师" value="1"></el-option>
+            <el-option label="首席讲师" value="2"></el-option>-->
+          </el-select>
+        </el-form-item>
+        <el-form-item label="创建时间">
+          <el-col :span="11">
+            <el-form-item prop="beginTime" type="datetime">
+              <el-date-picker type="date" placeholder="选择开始时间"
+                v-model="teacherQuery.beginTime" style="width: 100%;"
+                value-format="yyyy-MM-dd HH:mm:ss"
+                default-time="00:00:00"></el-date-picker>
+            </el-form-item>
+          </el-col>
+          <el-col :span="11">
+            <el-form-item prop="endTime" type="datetime">
+              <el-date-picker placeholder="选择结束时间"
+                v-model="teacherQuery.endTime" style="width: 100%;"
+                value-format="yyyy-MM-dd hh:mm:ss"
+                default-time="00:00:00"></el-date-picker>
+            </el-form-item>
+          </el-col>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="query">查询</el-button>
+          <el-button @click="resetForm('teacherQuery')">清除</el-button>
+        </el-form-item>
+      </el-form>
+
         <el-table
           :data="list"
           style="width: 100%"
@@ -53,7 +89,6 @@
 
           <el-table-column
             label="操作"
-
             align="center">
 
             <template slot-scope="scope">
@@ -79,7 +114,8 @@
 </template>
 
 <script>
-  import teacher from '@/api/edu/teacher';
+  import teacher from '@/api/edu/teacher'
+  import dict from '@/api/dict/dict'
     export default {
         name: "TeacherList",
         data(){
@@ -90,16 +126,17 @@
             list:null,//返回数据
             teacherQuery:{},//查询条件
             loading:true,
+            teacherTitleList:''
           }
         },
         created(){
-            this.getList()
+          this.getList()
+          this.initData();
         },
         methods:{
           getList(){
               teacher.getTeacherPageList(this.currentPage,this.pageSize,this.teacherQuery)
               .then(response => {
-                console.log(response)
                 this.list = response.data.mEduTeacherList
                 this.total = response.data.total
                 this.loading=false
@@ -124,7 +161,22 @@
           handleCurrentChange(val){
             this.currentPage = val;
             this.getList();
-          }
+          },
+          query() {
+            this.currentPage=1
+            this.getList();
+          },
+          initData(){
+            dict.qryDictListByType(dict.dictTypes.TEACHER_TITL)
+              .then(response => {
+                this.teacherTitleList = response.data.dictList
+            }).catch(error => {
+              console.log(error)
+            })
+          },
+          resetForm(formName) {
+            this.$refs[formName].resetFields();
+          },
         }
     }
 </script>
