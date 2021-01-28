@@ -9,5 +9,19 @@ export default {
       data:JSON.stringify(teacherQuery),
       headers:{'Content-Type':'application/json'}
     })
+  },
+  deleteTeacherById(id){
+    return request({
+      url:`/teacher/deleteTeacher/${id}`,
+      method:'delete',
+    })
+  },
+  createTeacher(teacher){
+    return request({
+      url:'/teacher/createTeacher',
+      method:'post',
+      headers:{'Content-Type':'application/json'},
+      data:JSON.stringify(teacher)
+    })
   }
 }

@@ -1,15 +1,13 @@
 <template>
-    <div class="api-container">
+    <div class="app-container">
       <el-form :inline="true" :model="teacherQuery" ref="teacherQuery" class="demo-form-inline">
         <el-form-item label="讲师名" prop="name">
-          <el-input v-model="teacherQuery.name" placeholder="审批人"></el-input>
+          <el-input v-model="teacherQuery.name" placeholder="讲师名"></el-input>
         </el-form-item>
         <el-form-item label="讲师头衔" prop="level">
           <el-select v-model="teacherQuery.level" placeholder="讲师头衔">
             <el-option v-for="teacherTitle in teacherTitleList" :label="teacherTitle.dictValueName" :value="teacherTitle.dictValue">
             </el-option>
-            <!--<el-option label="高级讲师" value="1"></el-option>
-            <el-option label="首席讲师" value="2"></el-option>-->
           </el-select>
         </el-form-item>
         <el-form-item label="创建时间">
@@ -96,7 +94,7 @@
                 <el-button type="primary" size="mini" icon="el-icon-edit">修改</el-button>
               </router-link>
                   &nbsp;&nbsp;
-              <el-button type="danger" size="mini" icon="el-icon-delete">删除</el-button>
+              <el-button type="danger" size="mini" icon="el-icon-delete" @click="deleteTeacher(scope.row.id)">删除</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -141,15 +139,11 @@
                 this.total = response.data.total
                 this.loading=false
               })
-              .catch(error =>{
-                this.loading=false
-                console.log(error)
-              })
           },
           tableRowClassName({row, rowIndex}) {
-            if (rowIndex === 1) {
+            if (rowIndex %2 == 0) {
               return 'warning-row';
-            } else if (rowIndex === 3) {
+            } else {
               return 'success-row';
             }
             return '';
@@ -170,13 +164,27 @@
             dict.qryDictListByType(dict.dictTypes.TEACHER_TITL)
               .then(response => {
                 this.teacherTitleList = response.data.dictList
-            }).catch(error => {
-              console.log(error)
             })
           },
           resetForm(formName) {
             this.$refs[formName].resetFields();
           },
+          deleteTeacher(id){
+            this.$confirm('确认删除该讲师?', '提示', {
+              confirmButtonText: '确定',
+              cancelButtonText: '取消',
+              type: 'warning'
+            }).then(() => {
+              teacher.deleteTeacherById(id).then(response => {
+                this.getList()
+                this.$message({
+                  type: 'success',
+                  message: '删除成功!'
+                })
+              })
+            }).catch(() => {
+            })
+          }
         }
     }
 </script>
