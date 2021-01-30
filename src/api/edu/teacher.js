@@ -23,5 +23,20 @@ export default {
       headers:{'Content-Type':'application/json'},
       data:JSON.stringify(teacher)
     })
+  },
+  qryTeacherById(id){
+    return request({
+      url:`/teacher/qryTeacherById/${id}`,
+      method:'get'
+    })
+  },
+  updateTeacher(teacher){
+    return request({
+      url:'/teacher/updateTeacher',
+      method:'post',
+      headers:{'Content-Type':'application/json'},
+      data:JSON.stringify(teacher)
+    })
   }
+
 }

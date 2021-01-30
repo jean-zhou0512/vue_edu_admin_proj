@@ -61,21 +61,21 @@
       },
       created(){
         this.initData();
+        if(this.$route.params && this.$route.params.id){
+          this.qryTeacherById(this.$route.params.id)
+        }
       },
       methods:{
         saveOrUpdate(formName){
           this.$refs[formName].validate((valid) => {
             if (valid) {
-             teacherApi.createTeacher(this.teacher)
-             .then(response=>{
-               this.$message({
-                 type: 'success',
-                 message: '提交成功!'
-               })
-               this.$router.push({path:'/teacher/list'})
-             });
+              if(this.teacher.id){
+                this.updateTeacher();
+              }else{
+                this.createTeacher();
+              }
             }
-          });
+          })
         },
         initData(){
           dictApi.qryDictListByType(dictApi.dictTypes.TEACHER_TITL)
@@ -84,9 +84,35 @@
             })
         },
         resetForm(formName){
-          this.$refs[formName].resetFields();
-        }
-      }
+          this.$refs[formName].resetFields()
+        },
+        qryTeacherById(id){
+          teacherApi.qryTeacherById(id)
+            .then(response => {
+              this.teacher = response.data.teacher
+            })
+        },
+        createTeacher(){
+          teacherApi.createTeacher(this.teacher)
+            .then(response=>{
+              this.$message({
+                type: 'success',
+                message: '添加成功!'
+              })
+              this.$router.push({path:'/teacher/list'})
+            });
+            },
+            updateTeacher(){
+              teacherApi.updateTeacher(this.teacher)
+                .then(response=>{
+                  this.$message({
+                    type: 'success',
+                    message: '修改成功!'
+                  })
+                  this.$router.push({path:'/teacher/list'})
+                })
+            }
+        },
     }
 </script>
 
