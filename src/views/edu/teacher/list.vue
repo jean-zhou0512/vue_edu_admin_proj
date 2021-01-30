@@ -90,7 +90,7 @@
             align="center">
 
             <template slot-scope="scope">
-              <router-link to="/login">
+              <router-link :to="`/teacher/save/${scope.row.id}`">
                 <el-button type="primary" size="mini" icon="el-icon-edit">修改</el-button>
               </router-link>
                   &nbsp;&nbsp;
