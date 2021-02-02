@@ -7,7 +7,7 @@ export default {
   dictTypes,
   qryDictListByType(dictType){
     return request({
-      url:`/dict/qryDictListByType/${dictType}`,
+      url:`/eduservice/dict/qryDictListByType/${dictType}`,
       method: 'get',
     })
   }
