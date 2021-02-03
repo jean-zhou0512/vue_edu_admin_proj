@@ -46,7 +46,8 @@ const actions = {
   // get user info
   getInfo({ commit, state }) {
     return new Promise((resolve, reject) => {
-      getInfo(state.token).then(response => {
+
+        getInfo(state.token).then(response => {
         const { data } = response
 
         if (!data) {
@@ -54,7 +55,7 @@ const actions = {
         }
 
         const { name, avatar } = data
-
+        console.log(avatar)
         commit('SET_NAME', name)
         commit('SET_AVATAR', avatar)
         resolve(data)
