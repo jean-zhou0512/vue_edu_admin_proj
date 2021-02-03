@@ -20,7 +20,7 @@
         <!-- 讲师头像：TODO -->
         <el-form-item label="讲师头像">
           <!--头像缩略图-->
-          <PanThumb></PanThumb>
+          <PanThumb image="https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=1091405991,859863778&fm=26&gp=0.jpg"></PanThumb>
           <!--文件上传按钮-->
           <el-button type="primary" icon="el-icon-upload"
           >更换头像</el-button>
