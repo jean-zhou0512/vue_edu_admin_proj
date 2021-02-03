@@ -18,6 +18,24 @@
           <el-input v-model="teacher.intro" :rows="10" type="textarea"/>
         </el-form-item>
         <!-- 讲师头像：TODO -->
+        <el-form-item label="讲师头像">
+          <!--头像缩略图-->
+          <PanThumb></PanThumb>
+          <!--文件上传按钮-->
+          <el-button type="primary" icon="el-icon-upload"
+          >更换头像</el-button>
+
+          <!--
+          v-show:是否显示上传组件
+          :key:类似于id，如果一个页面多个图片上传控件，可以做区分
+          :url: 后台上传的url地址
+          @close:关闭上传组件
+          @crop-upload-success:上传成后的回调
+          -->
+          <ImageCropper
+          v-show="false"></ImageCropper>
+        </el-form-item>
+
         <el-form-item>
           <el-button :disabled="saveBtnDisabled" type="primary" @click="saveOrUpdate('teacherForm')">保存</el-button>
           <el-button @click="resetForm('teacherForm')">重置</el-button>
@@ -29,8 +47,11 @@
 <script>
   import dictApi from '@/api/dict/dict'
   import teacherApi from '@/api/edu/teacher'
+  import ImageCropper from '@/components/ImageCropper'
+  import PanThumb from '@/components/PanThumb'
     export default {
       name: "",
+      components:{ImageCropper,PanThumb},
       data(){
         return {
           teacher:{
