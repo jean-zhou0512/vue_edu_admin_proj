@@ -148,10 +148,12 @@ export default {
         },
         cancelUploadImg(){
           this.isUpload = false;
+          this.key = this.key + 1;
         },
         uploadImg(data){
           this.teacher.avatar = data.url;
           this.isUpload = false;
+          this.key = this.key + 1;
         }
     },
 }
