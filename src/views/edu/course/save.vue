@@ -105,11 +105,11 @@
           price:[
             { required: true, message: '请输入课时价格', trigger: 'blur' },
           ],
-          subjectId:[
-            { required: true, message: '请选择课程分类', trigger: 'blur' },
+          subject:[
+            { required: true, message: '请选择课程分类', trigger: 'change' },
           ],
           teacherId:[
-            { required: true, message: '请选择课程讲师', trigger: 'blur' },
+            { required: true, message: '请选择课程讲师', trigger: 'change' },
           ]
         },
         rulesChapter:{},
