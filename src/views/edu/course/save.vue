@@ -38,6 +38,21 @@
       </el-form-item>
 
       <!-- 课程封面 TODO -->
+      <el-form-item label="课程封面" prop="cover">
+        <el-upload
+          class="upload-demo"
+          :action="uploadUrl"
+          :on-remove="handleRemove"
+          :on-exceed="handleExceed"
+          :before-remove="beforeRemove"
+          :file-list="fileList"
+          :limit="1"
+          list-type="picture"
+          :on-success="uploadFileSuccess">
+          <el-button size="small" type="primary">点击上传</el-button>
+          <div slot="tip" class="el-upload__tip upload_tip">只能上传jpg/png文件，且不超过500kb</div>
+        </el-upload>
+      </el-form-item>
 
       <el-form-item label="课程价格" prop="price">
         <el-input-number :min="0" v-model="courseInfo.price"
@@ -123,7 +138,9 @@
           label:'title',
           children:'nodes'
 
-        }
+        },
+        fileList:[{name: 'food.jpeg', url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100'}],
+        uploadUrl:process.env.VUE_APP_BASE_API+'/ossservice/oss/uploadAvatar'
       }
     },
     created(){
@@ -183,11 +200,26 @@
       handleChange(value) {
         this.courseInfo.subjectId = value[1]
         this.courseInfo.subjectParentId = value[0]
+      },
+      beforeRemove(file,fileList){
+        return this.$confirm(`确定移除 ${ file.name }？`);
+      },
+      handleRemove(file, fileList) {
+        // return this.$confirm(`确定移除 ${ file.name }？`);
+        this.courseInfo.cover = '';
+      },
+      handleExceed(files, fileList) {
+        this.$message.warning(`当前限制选择 1 个文件，本次选择了 ${files.length} 个文件，共选择了 ${files.length + fileList.length} 个文件`);
+      },
+      uploadFileSuccess(files, fileList){
+        this.courseInfo.cover = files.data.url
       }
     }
   }
 </script>
 
 <style scoped>
-
+.upload_tip{
+  color:red;
+}
 </style>
