@@ -37,6 +37,13 @@ export default {
       headers:{'Content-Type':'application/json'},
       data:JSON.stringify(teacher)
     })
+  },
+  qryAllTeacher(){
+   return request({
+     url:'/eduservice/teacher/qryAllTeacher',
+     method:'get',
+   })
+
   }
 
 }

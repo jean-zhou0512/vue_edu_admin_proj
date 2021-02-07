@@ -10,9 +10,21 @@
       </el-form-item>
 
       <!-- 所属分类 TODO -->
+      <el-form-item label="所属分类" prop="subject">
+          <el-cascader
+            v-model="courseInfo.subject"
+            :options="subjectTree"
+            :props="subjectProps"
+            @change="handleChange"></el-cascader>
+      </el-form-item>
 
       <!-- 课程讲师 TODO -->
-
+      <el-form-item label="课程讲师" prop="teacherId">
+        <el-select v-model="courseInfo.teacherId" filterable placeholder="课程讲师">
+          <el-option v-for="teacher in teacherList" :label="teacher.name" :value="teacher.id">
+          </el-option>
+        </el-select>
+      </el-form-item>
 
       <el-form-item label="总课时" prop="lessonNum">
         <el-input-number :min="0" v-model="courseInfo.lessonNum"
@@ -57,6 +69,8 @@
 
 <script>
   import CourseSteps from '@/components/CourseSteps'
+  import teacherApi from '@/api/edu/teacher'
+  import subjectApi from '@/api/edu/subject'
   export default {
     name: "CourseSave",
     components:{CourseSteps},
@@ -66,7 +80,9 @@
         saveBtnDisabled:false,
         courseInfo:{
           title: '',
+          subject:'',
           subjectId: '',
+          subjectParentId:'',
           teacherId: '',
           lessonNum: 0,
           description: '',
@@ -88,11 +104,31 @@
           ],
           price:[
             { required: true, message: '请输入课时价格', trigger: 'blur' },
+          ],
+          subjectId:[
+            { required: true, message: '请选择课程分类', trigger: 'blur' },
+          ],
+          teacherId:[
+            { required: true, message: '请选择课程讲师', trigger: 'blur' },
           ]
         },
         rulesChapter:{},
         rulesPublish:{},
+        dialogTableVisible:false,
+        teacherList:[],
+        subjectTree:[],
+        subjectProps:{
+          expandTrigger: 'hover',
+          value:'id',
+          label:'title',
+          children:'nodes'
+
+        }
       }
+    },
+    created(){
+      this.initTeacher()
+      this.initSubject()
     },
     methods:{
       next(formName){
@@ -100,6 +136,7 @@
           if (valid) {
             if(this.active == 0){
               this.active = 1
+              console.log(this.courseInfo)
             }else if(this.active == 1){
               this.active = 2
             }else if(this.active == 2){
@@ -115,8 +152,37 @@
         if(this.active == 2){
           this.active = 1
         }else if(this.active == 1){
-          this.active = 0;
+          this.active = 0
         }
+      },
+      initTeacher(){
+        teacherApi.qryAllTeacher()
+          .then(response => {
+            this.teacherList = response.data.eduTeacherList
+          })
+      },
+      initSubject(){
+        subjectApi.getSubjectTree()
+          .then(response => {
+            this.subjectTree = this.getTreeData(response.data.subjectTree)
+          })
+      },
+      // 递归判断列表，把最后的children设为undefined
+      getTreeData(data){
+        for(var i=0;i<data.length;i++){
+          if(data[i].nodes.length<1){
+            // children若为空数组，则将children设为undefined
+            data[i].nodes=undefined;
+          }else {
+            // children若不为空数组，则继续 递归调用 本方法
+            this.getTreeData(data[i].nodes);
+          }
+        }
+        return data;
+      },
+      handleChange(value) {
+        this.courseInfo.subjectId = value[1]
+        this.courseInfo.subjectParentId = value[0]
       }
     }
   }
