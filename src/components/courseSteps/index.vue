@@ -11,13 +11,11 @@
 
 <script>
     export default {
-      name: "courseSteps",
+        name: "CourseSteps",
       props: {
-        active: {
-          type: Number,
-          default: 0
-        }
-      },
+        active:Number,
+        default:0,
+      }
     }
 </script>
 
