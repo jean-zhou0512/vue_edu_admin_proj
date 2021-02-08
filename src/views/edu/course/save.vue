@@ -33,8 +33,13 @@
 
       <!-- 课程简介 TODO -->
       <el-form-item label="课程简介" prop="description">
-        <el-input v-model="courseInfo.description"
-                  placeholder="课程简介"></el-input>
+<!--        <el-input v-model="courseInfo.description"-->
+<!--                  placeholder="课程简介"></el-input>-->
+        <Editor v-model="courseInfo.description" id="tinymce" :init="init"
+        >
+
+
+        </Editor>
       </el-form-item>
 
       <!-- 课程封面 TODO -->
@@ -86,9 +91,13 @@
   import CourseSteps from '@/components/CourseSteps'
   import teacherApi from '@/api/edu/teacher'
   import subjectApi from '@/api/edu/subject'
+  import tinymce from "tinymce"
+  import Editor from "@tinymce/tinymce-vue"
+  import 'tinymce/themes/silver'
+  import 'tinymce/icons/default'
   export default {
     name: "CourseSave",
-    components:{CourseSteps},
+    components:{CourseSteps,Editor},
     data(){
       return {
         active:0,
@@ -140,7 +149,16 @@
 
         },
         fileList:[{name: 'food.jpeg', url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100'}],
-        uploadUrl:process.env.VUE_APP_BASE_API+'/ossservice/oss/uploadAvatar'
+        uploadUrl:process.env.VUE_APP_BASE_API+'/ossservice/oss/uploadAvatar',
+        init: {
+          selector: "#tinymce", //tinymce的id
+          language_url: "/static/tinymce/zh_CN.js",
+          language: "zh_CN",
+          skin_url: "/static/tinymce/skins/ui/oxide", //编辑器需要一个skin才能正常工作，所以要设置一个skin_url指向之前复制出来的skin文件
+          height:300,
+          plugins: "image link code table lists wordcount", //引入插件
+          toolbar: "fontselect fontsizeselect link lineheight forecolor backcolor bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | image quicklink h2 h3 blockquote table numlist bullist preview fullscreen", //工具栏
+        }
       }
     },
     created(){
