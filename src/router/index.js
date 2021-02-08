@@ -128,6 +128,13 @@ export const constantRoutes = [
         component: () => import('@/views/edu/course/save'),
         meta: { title: '添加课程', icon: 'tree' }
       },
+      {
+        path: 'save/:id',
+        name: '添加课程',
+        component: () => import('@/views/edu/course/save'),
+        meta: { title: '添加课程', icon: 'tree' },
+        hidden:true
+      },
     ]
   },
 

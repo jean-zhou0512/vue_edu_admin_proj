@@ -2,9 +2,9 @@
   <div>
     <h2 style="text-align: center;">发布新课程</h2>
     <el-steps :active="active" process-status="wait" finish-status="success" style="margin-bottom: 40px;">
-      <el-step title="填写课程基本信息"></el-step>
-      <el-step title="创建课程大纲"></el-step>
-      <el-step title="提交审核"></el-step>
+      <el-step title="填写课程基本信息"/>
+      <el-step title="创建课程大纲"/>
+      <el-step title="发布课程"/>
     </el-steps>
   </div>
 </template>
