@@ -33,7 +33,7 @@
           value: this.tinymceHtml, //父组件通过ref拿到该组件的值
           init: {
             selector: "#tinymce",
-            language_url: "/static/tinymce/langs/zh_CN.js",
+            language_url: "/static/tinymce/zh_CN.js",
             language: "zh_CN",
             skin_url: "/static/tinymce/skins/ui/oxide", //编辑器需要一个skin才能正常工作，所以要设置一个skin_url指向之前复制出来的skin文件
             height: this.tinymceHeight,
