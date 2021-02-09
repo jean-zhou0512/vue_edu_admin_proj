@@ -62,23 +62,22 @@
       </el-form-item>
 
       <el-form-item>
-        <el-button :disabled="saveBtnDisabled" type="primary" @click="next('courseInfo')">保存并下一步</el-button>
+        <el-button :disabled="saveBtnDisabled" type="primary" @click="next('courseInfo')">前往下一步</el-button>
       </el-form-item>
     </el-form>
 
-    <el-form label-width="120px" :model="courseChapter" :rules="rulesChapter" ref="courseChapter" class="demo-ruleForm" v-if="active == 1">
-      <el-button type="text">添加章节</el-button>
+    <div label-width="120px" v-if="active == 1">
+      <el-button type="text" @click="showChapterDialog">添加章节</el-button>
       <ul class="chapterList">
-        <li v-for="chapter in chapterList" :key="chapter.id">
+        <li v-for="(chapter,index) in chapterList" :key="chapter.id">
           <p>
             {{chapter.title}}
             <span class="acts">
               <el-button type="text">添加课时</el-button>
-              <el-button type="text">编辑</el-button>
-              <el-button type="text">删除</el-button>
+              <el-button type="text" @click="showChapterDialog(chapter,index)">编辑</el-button>
+              <el-button type="text" @click="deleteChapter(chapter,index)">删除</el-button>
             </span>
           </p>
-
           <!--视频-->
           <ul class="chapterList videoList">
             <li v-for="video in chapter.eduVideoList" :key="video.id">
@@ -93,18 +92,52 @@
         </li>
       </ul>
 
+      <!--添加章节-->
+      <el-dialog title="添加/修改章节" :visible.sync="dialogFormVisible">
+        <el-form :model="chapter" :rules="rulesChapter" ref="chapter" class="demo-ruleForm">
+          <el-form-item label="章节名称" :label-width="formLabelWidth" prop="title">
+            <el-input v-model="chapter.title" autocomplete="off"></el-input>
+          </el-form-item>
+          <el-form-item label="排序" :label-width="formLabelWidth" prop="sort">
+            <el-input-number :min="0" v-model="chapter.sort"
+                             controls-position="right"></el-input-number>
+          </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="dialogFormVisible = false">取 消</el-button>
+          <el-button type="primary" @click="addOrUpdateChapter('chapter')">确 定</el-button>
+        </div>
+      </el-dialog>
 
-      <el-form-item>
+      <!--添加课时-->
+      <el-dialog title="添加/修改课时" :visible.sync="dialogVideoFormVisible">
+        <el-form :model="video">
+<!--          <el-form-item label="活动名称" :label-width="formLabelWidth">-->
+<!--            <el-input v-model="form.name" autocomplete="off"></el-input>-->
+<!--          </el-form-item>-->
+<!--          <el-form-item label="活动区域" :label-width="formLabelWidth">-->
+<!--            <el-select v-model="form.region" placeholder="请选择活动区域">-->
+<!--              <el-option label="区域一" value="shanghai"></el-option>-->
+<!--              <el-option label="区域二" value="beijing"></el-option>-->
+<!--            </el-select>-->
+<!--          </el-form-item>-->
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="dialogFormVisible = false">取 消</el-button>
+          <el-button type="primary" @click="dialogFormVisible = false">确 定</el-button>
+        </div>
+      </el-dialog>
+      <div slot="footer" class="dialog-footer">
         <el-button :disabled="saveBtnDisabled" type="primary" @click="prev()">返回上一步</el-button>
-        <el-button :disabled="saveBtnDisabled" type="primary" @click="next('courseChapter')">保存并下一步</el-button>
-      </el-form-item>
-    </el-form>
+        <el-button :disabled="saveBtnDisabled" type="primary" @click="next('courseInfo')">前往下一步</el-button>
+      </div>
+    </div>
 
     <el-form label-width="120px" :model="coursePublish" :rules="rulesPublish" ref="coursePublish" class="demo-ruleForm" v-if="active == 2">
       表单3
       <el-form-item>
         <el-button :disabled="saveBtnDisabled" type="primary" @click="prev()">返回上一步</el-button>
-        <el-button :disabled="saveBtnDisabled" type="primary" @click="next('coursePublish')">发布课程</el-button>
+        <el-button :disabled="saveBtnDisabled" type="primary" @click="next('coursePublish')">保存并发布课程</el-button>
       </el-form-item>
     </el-form>
   </div>
@@ -126,6 +159,7 @@
 
         //课程信息
         courseInfo:{
+          id:'',//课程id
           title: '',
           subject:[],
           subjectId: '',
@@ -136,7 +170,6 @@
           cover: '',
           price: 0
         },
-        courseChapter:{},
         coursePublish:{},
         rulesCourse:{
           // title:[
@@ -159,7 +192,6 @@
           //   { required: true, message: '请选择课程讲师', trigger: 'change' },
           // ]
         },
-        rulesChapter:{},
         rulesPublish:{},
         dialogTableVisible:false,
         teacherList:[],
@@ -176,6 +208,26 @@
 
         //课程章节
         chapterList:[],
+        dialogFormVisible:false,
+        formLabelWidth: '120px',
+        chapter:{
+          id:'',//判断是新增还是修改
+          title:'',
+          sort:'',
+          courseId:'',
+        },
+        rulesChapter:{
+          title:[
+            { required: true, message: '请输入课程标题', trigger: 'blur' },
+          ],
+          sort:[
+            { required: true, message: '请输入排序', trigger: 'blur' },
+          ]
+        },
+        deleteChapterList:[],
+
+        //课时
+        dialogVideoFormVisible:false
       }
     },
     created(){
@@ -197,6 +249,7 @@
             this.courseInfo.lessonNum = responese.data.eduCourse.lessonNum
             this.courseInfo.cover = responese.data.eduCourse.cover
             this.courseInfo.price = responese.data.eduCourse.price
+            this.courseInfo.id = responese.data.eduCourse.id
 
             if(responese.data.eduCourseDescription != null && responese.data.eduCourseDescription != ''){
               this.courseInfo.description = responese.data.eduCourseDescription.description
@@ -273,6 +326,61 @@
       },
       changeValue(value){
         this.courseInfo.description = value
+        this.resetChapterForm()
+      },
+      showChapterDialog(chapter,index){
+        this.dialogFormVisible = true
+        if(chapter){
+          // this.chapter = chapter;
+          this.chapter.id=chapter.id
+          this.chapter.courseId=chapter.courseId
+          this.chapter.title=chapter.title
+          this.chapter.sort=chapter.sort
+          this.chapter.index=chapter.index
+        }
+      },
+      addOrUpdateChapter(formName){
+        this.$refs[formName].validate((valid)=>{
+          if(valid){
+            if(this.courseInfo.id && this.courseInfo.id != ''){
+                this.chapter.courseId = this.courseInfo.id
+            }
+            if(this.chapter.index != undefined){
+              this.chapterList[this.chapter.index] = this.chapter
+            }else{
+              // 这里给index赋值
+              this.chapter.index = this.chapterList.length;
+              this.chapterList.push(this.chapter)
+            }
+            this.resetChapterForm()
+            this.dialogFormVisible = false
+          } else {
+            console.log('error submit!!');
+            return false;
+          }
+        })
+      },
+      resetChapterForm(chapter,index){
+        this.chapter = {
+          id:'',//判断是新增还是修改
+          title:'',
+          sort:'',
+          courseId:'',
+        }
+      },
+      deleteChapter(chapter,index){
+        this.$confirm('确定要删除该章节?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          if(chapter.id != undefined){
+            //存量数据进行删除，记录要删除的id
+            this.deleteChapterList.push(chapter.id)
+          }
+          this.chapterList.splice(index,1)
+          console.log(this.deleteChapterList)
+        })
       }
     },
   }
@@ -283,16 +391,17 @@
   color:red;
 }
 
-chapterList{
+.chapterList{
   position: relative;
   list-style: none;
   margin: 0;
   padding: 0;
 }
-.chanpterList li{
+.chapterList li{
   position: relative;
+  list-style: none;
 }
-.chanpterList p{
+.chapterList p{
   float: left;
   font-size: 20px;
   margin: 10px 0;
@@ -302,7 +411,7 @@ chapterList{
   width: 100%;
   border: 1px solid #DDD;
 }
-.chanpterList .acts {
+.chapterList .acts {
   float: right;
   font-size: 14px;
 }
