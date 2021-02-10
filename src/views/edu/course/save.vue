@@ -69,24 +69,26 @@
     <div label-width="120px" v-if="active == 1">
       <el-button type="text" @click="showChapterDialog">添加章节</el-button>
       <ul class="chapterList">
-        <li v-for="(chapter,index) in chapterList" :key="chapter.id">
+        <li v-for="(chapter,cIndex) in chapterList" :key="chapter.id">
           <p>
             {{chapter.title}}
             <span class="acts">
-              <el-button type="text">添加课时</el-button>
-              <el-button type="text" @click="showChapterDialog(chapter,index)">编辑</el-button>
-              <el-button type="text" @click="deleteChapter(chapter,index)">删除</el-button>
+              <el-button type="text" @click="showVideoDialog(undefined,cIndex)">添加课时</el-button>
+              <el-button type="text" @click="showChapterDialog(chapter,cIndex)">编辑</el-button>
+              <el-button type="text" @click="deleteChapter(chapter,cIndex)">删除</el-button>
             </span>
           </p>
           <!--视频-->
           <ul class="chapterList videoList">
-            <li v-for="video in chapter.eduVideoList" :key="video.id">
-              <p>{{video.title}}</p>
-              <span class="acts">
-                <el-button type="text">编辑</el-button>
+            <li v-for="(video,vIndex) in chapter.eduVideoList" :key="video.id">
+              <p>{{video.title}}
+                <span class="acts">
+                <el-button type="text" @click="showVideoDialog(video,cIndex,vIndex)">编辑</el-button>
                 <el-button type="text">删除</el-button>
-              </span>
+                </span>
+              </p>
             </li>
+
           </ul>
 
         </li>
@@ -111,26 +113,35 @@
 
       <!--添加课时-->
       <el-dialog title="添加/修改课时" :visible.sync="dialogVideoFormVisible">
-        <el-form :model="video">
-<!--          <el-form-item label="活动名称" :label-width="formLabelWidth">-->
-<!--            <el-input v-model="form.name" autocomplete="off"></el-input>-->
-<!--          </el-form-item>-->
-<!--          <el-form-item label="活动区域" :label-width="formLabelWidth">-->
-<!--            <el-select v-model="form.region" placeholder="请选择活动区域">-->
-<!--              <el-option label="区域一" value="shanghai"></el-option>-->
-<!--              <el-option label="区域二" value="beijing"></el-option>-->
-<!--            </el-select>-->
-<!--          </el-form-item>-->
+        <el-form :model="video" label-width="120px" prop="title" :rules="rulesVideo" ref="video" class="demo-ruleForm">
+          <el-form-item label="课时标题" :label-width="formLabelWidth">
+            <el-input v-model="video.title"/>
+          </el-form-item>
+
+          <el-form-item label="课时排序" :label-width="formLabelWidth" prop="sort">
+            <el-input-number v-model="video.sort" :min="0" />
+          </el-form-item>
+
+          <el-form-item label="是否免费" prop="isFree">
+            <el-radio-group v-model="video.isFree">
+            <el-radio :label="1">免费</el-radio>
+            <el-radio :label="0">收费</el-radio>
+            </el-radio-group>
+          </el-form-item>
+
+          <el-form-item label="上传视频">
+            <!--TODO-->
+          </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
-          <el-button @click="dialogFormVisible = false">取 消</el-button>
-          <el-button type="primary" @click="dialogFormVisible = false">确 定</el-button>
+          <el-button @click="dialogVideoFormVisible = false">取 消</el-button>
+          <el-button type="primary" @click="addOrUpdateVideo('video')">确 定</el-button>
         </div>
       </el-dialog>
-      <div slot="footer" class="dialog-footer">
-        <el-button :disabled="saveBtnDisabled" type="primary" @click="prev()">返回上一步</el-button>
-        <el-button :disabled="saveBtnDisabled" type="primary" @click="next('courseInfo')">前往下一步</el-button>
-      </div>
+
+
+      <el-button :disabled="saveBtnDisabled" type="primary" @click="prev()">返回上一步</el-button>
+      <el-button :disabled="saveBtnDisabled" type="primary" @click="next('courseInfo')">前往下一步</el-button>
     </div>
 
     <el-form label-width="120px" :model="coursePublish" :rules="rulesPublish" ref="coursePublish" class="demo-ruleForm" v-if="active == 2">
@@ -227,7 +238,33 @@
         deleteChapterList:[],
 
         //课时
-        dialogVideoFormVisible:false
+        dialogVideoFormVisible:false,
+        video:{
+          id:'',
+          courseId:'',
+          chapterId:'',
+          title:'',
+          videoSourceId:'',
+          videoOriginalName:'',
+          sort:'',
+          isFree:'',
+          duration:'',
+          size:'',
+          status:'',
+          vIndex:'',
+          cIndex:''
+        },
+          rulesVideo:{
+          title:[
+            { required: true, message: '请输入课程标题', trigger: 'blur' },
+          ],
+          sort:[
+            { required: true, message: '请输入排序', trigger: 'blur' },
+          ],
+          isFree:[
+            { required: true, message: '请选择课时是否免费', trigger: 'change' },
+          ]
+        }
       }
     },
     created(){
@@ -326,17 +363,17 @@
       },
       changeValue(value){
         this.courseInfo.description = value
-        this.resetChapterForm()
       },
       showChapterDialog(chapter,index){
         this.dialogFormVisible = true
+        this.resetChapterForm()
         if(chapter){
           // this.chapter = chapter;
           this.chapter.id=chapter.id
           this.chapter.courseId=chapter.courseId
           this.chapter.title=chapter.title
           this.chapter.sort=chapter.sort
-          this.chapter.index=chapter.index
+          this.chapter.index=index
         }
       },
       addOrUpdateChapter(formName){
@@ -381,6 +418,56 @@
           this.chapterList.splice(index,1)
           console.log(this.deleteChapterList)
         })
+      },
+      showVideoDialog(video,cIndex,vIndex){
+        this.dialogVideoFormVisible = true
+        this.resetVideoForm()
+        this.video.cIndex = cIndex
+        if(video){
+          this.video.id = video.id
+          this.video.courseId = video.courseId
+          this.video.chapterId = video.chapterId
+          this.video.title = video.title
+          this.video.sort = video.sort
+          this.video.isFree = video.isFree
+          this.video.vIndex = vIndex
+        }
+      },
+      addOrUpdateVideo(formName){
+        this.$refs[formName].validate((valid)=>{
+          if(valid){
+            if(this.courseInfo.id && this.courseInfo.id != ''){
+              this.video.courseId = this.courseInfo.id
+            }
+            if(this.video.vIndex != undefined){
+              this.chapterList[this.video.cIndex].eduVideoList[this.video.vIndex] = this.video
+            }else{
+              // 这里给index赋值
+              this.video.vIndex =  this.chapterList[this.video.cIndex].eduVideoList.length;
+              this.chapterList[this.video.cIndex].eduVideoList.push(this.video)
+            }
+            this.resetVideoForm()
+            this.dialogVideoFormVisible = false
+          }else{
+            console.log('error submit!!');
+            return false;
+          }
+        })
+      },
+      resetVideoForm(){
+        this.video={
+          id:'',
+          courseId:'',
+          chapterId:'',
+          title:'',
+          videoSourceId:'',
+          videoOriginalName:'',
+          sort:'',
+          isFree:'',
+          duration:'',
+          size:'',
+          status:''
+        }
       }
     },
   }
@@ -411,10 +498,6 @@
   width: 100%;
   border: 1px solid #DDD;
 }
-.chapterList .acts {
-  float: right;
-  font-size: 14px;
-}
 .videoList{
   padding-left: 50px;
 }
@@ -428,4 +511,12 @@
   width: 100%;
   border: 1px dotted #DDD;
 }
+
+.chapterList .acts {
+  float: right;
+  font-size: 14px;
+}
+
+
+
 </style>
